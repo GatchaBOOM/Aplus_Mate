@@ -1,6 +1,7 @@
 import openai
 import os
 import convert
+import re
 
 class CreateExam:
     
@@ -21,18 +22,16 @@ class CreateExam:
         return ans
     
     def filter(self, gpt_ans):
-        # GPT가 만든 문제와 답 리스트
-        question = []
-        answer = []
         
-        ans_splt = gpt_ans.split('\n')
-        print('-------------------')
-        for one_ans in ans_splt:
-            print(one_ans)
-            one_ans_splt = one_ans.split(' - ')
-            print(one_ans_splt)
-            if len(one_ans_splt) > 1:
-                question.append(one_ans_splt[0])
-                answer.append(one_ans_splt[1])
+        print(f'gpt answered: {gpt_ans}')
+        question = gpt_ans.split('[')[0] # 생성된 문제
+        answer = re.findall('\[([^]]+)', gpt_ans) # 괄호 안의 답변 빼오기. 리스트 형식으로 반한됨.
         
-        return question, answer
+        try:
+            answer_str = answer[0]
+        except IndexError:
+            print("list index out of range")
+            print(f"type is {type(answer)}")
+            print(answer)
+            
+        return question, answer_str 
