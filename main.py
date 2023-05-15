@@ -1,7 +1,12 @@
 from convert import Convert
 from create import CreateExam
+import os
+from dotenv import load_dotenv
 
-key = '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'
+load_dotenv()
+OPEN_AI_KEY = os.environ.get("PRIVATE_KEY")
+
+key = ''
 file = '서고강원본.pdf'
 cnt = 3
 
