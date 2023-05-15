@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 OPEN_AI_KEY = os.environ.get("PRIVATE_KEY")
 
-key = ''
+key = OPEN_AI_KEY
 file = '서고강원본.pdf'
 cnt = 3
 
