@@ -1,0 +1,5 @@
+python-dotenv
+tiktoken
+fitz
+fpdf
+openai
