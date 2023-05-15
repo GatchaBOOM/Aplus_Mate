@@ -32,8 +32,8 @@ class Convert:
         encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
         num_tokens = len(encoding.encode(text))
         
-        if num_tokens > 4000:
-            ratio = num_tokens//4000    
+        if num_tokens > 2000:
+            ratio = num_tokens//2000    
             length = len(text)//ratio
             num_tokens = num_tokens // ratio//2
             devided_txt = text[0:length//2]
