@@ -1,7 +1,7 @@
 from convert import Convert
 from create import CreateExam
 
-key = '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'
+key = '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'
 file = '서고강원본.pdf'
 cnt = 3
 
@@ -15,7 +15,9 @@ for i in range(cnt):
       
       # GPT한테 질문할 내용 만들기
       txt = con.getGPTInput()
-      input_cmd = f'''"{txt}"의 내용에서 짧은 단답식 문제를 1개 만들어줘, 조건은 "서울은 어느 나라의 수도인가요?[대한민국]"의 형식대로 답해야해.'''
+      input_cmd = f'''Please make only one short answer question from the contents of "{txt}",
+      For example, "Which country's capital is Seoul?[Korea]". And answer me in Korean.
+      '''
       
       # GPT한테 질문 쏘기
       ans = ce.sendMessage(input_cmd)
