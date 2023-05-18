@@ -15,15 +15,16 @@ class Convert:
         
         self.pdf_file = pdf_file
         self.cnt = cnt
+        self.num = 0
+        self.page = 0
         
         self.doc = fitz.open(self.pdf_file)
         self.page_list = []
         
-        
     def getGPTInput(self):
         
-        self.pickPages()
-        text = self.pdf2txt()
+        page = self.pickPages()
+        text = self.pdf2txt(page)
         
         return text
     
@@ -32,8 +33,8 @@ class Convert:
         encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
         num_tokens = len(encoding.encode(text))
         
-        if num_tokens > 2000:
-            ratio = num_tokens//2000    
+        if num_tokens > 500:
+            ratio = num_tokens//500    
             length = len(text)//ratio
             num_tokens = num_tokens // ratio//2
             devided_txt = text[0:length//2]
@@ -46,26 +47,36 @@ class Convert:
     
     def pickPages(self,):
         # PDF 페이지 수
-        num = self.doc.page_count
+        self.num = self.doc.page_count
+    
+        '''
+        처음 몇 장은 제목, 개요 이런 내용이라 생각해서 제외
+        나머지 페이지 중에서 cnt 개수만큼 랜덤으로 페이지 번호 추출
+        '''
         
-        for i in range(self.cnt):
-            '''
-            처음 몇 장은 제목, 개요 이런 내용이라 생각해서 제외
-            나머지 페이지 중에서 cnt 개수만큼 랜덤으로 페이지 번호 추출
-            '''
+        while True:
+            self.page = random.randint(1, self.num)
+            if self.page not in self.page_list:
+                break
             
-            p = random.randint(3, num-3)
-            self.page_list.append(p)
-            
-    def pdf2txt(self):
+        self.page_list.append(self.page)
+        print(f"{self.page} 페이지에서 추출")
+        
+        return self.page
+        
+    def pdf2txt(self, page_num):
         
         '''
-        pnum: pickPage()에서 랜덤으로 뽑은 난수 페이지 번호
+        page: pickPage()에서 랜덤으로 뽑은 난수 페이지 번호
         ppnum: pnum과 다음페이지까지 두장의 내용을 추출해서 한 문제 생성
         '''
         text = ''
-        for pnum in self.page_list:
-            for ppnum in range(pnum, pnum+1):
+        if self.num == page_num:
+            page = self.doc.load_page(page_num-1)
+            text += page.get_text()
+            
+        else:
+            for ppnum in range(page_num, page_num+1):
                 page = self.doc.load_page(ppnum)
                 text += page.get_text()
         

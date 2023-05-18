@@ -24,14 +24,40 @@ class CreateExam:
     def filter(self, gpt_ans):
         
         print(f'gpt answered: {gpt_ans}')
-        question = gpt_ans.split('[')[0] # 생성된 문제
-        answer = re.findall('\[([^]]+)', gpt_ans) # 괄호 안의 답변 빼오기. 리스트 형식으로 반한됨.
         
-        try:
-            answer_str = answer[0]
-        except IndexError:
-            print("list index out of range")
-            print(f"type is {type(answer)}")
-            print(answer)
+        # 문제를 한개가 아니라 여러개 만들어 내면 다시 
+        if (gpt_ans.count('?') > 1) or (gpt_ans.count('[') > 3):
+            print("여러 문제 생성 탐지")
+            return False, False
+        
+        # GPT의 답변 형식에 따라 구분
+        if '[' == gpt_ans[0]: # [문제] [답변] 형식
+            print('1번 대답 형식')
+            question = re.findall('\[([^]]+)', gpt_ans)[0]
+            answer = re.findall('\[([^]]+)', gpt_ans)[1]
+        
+        elif ' - ' in gpt_ans: # 문제 - 답변 형식
+            print('3번 대답 형식')
+            question = gpt_ans.split(' - ')[0]
+            answer = gpt_ans.split(' - ')[1]
             
-        return question, answer_str 
+        elif '[' in gpt_ans: # 문제 [답변] 형식
+            print('2번 대답 형식')
+            question = gpt_ans.split('[')[0] # 생성된 문제
+            answer = re.findall('\[([^]]+)', gpt_ans)[-1] # 괄호 안의 답변 빼오기. 리스트 형식으로 반한됨.
+            
+        else:
+            print('이상하게 말해서 다시 함미다잉')
+            return False, False
+            
+
+        # 답변에 가끔 따옴표 같이 보내줌
+        question = question.replace('"','')
+        answer = answer.replace('"','')
+        
+        if ('대한민국의' in question) or ('수도' in question) or ('서울' in answer):
+            print('그 놈의 대한민국 수도')
+            return False, False
+            
+            
+        return question, answer 
