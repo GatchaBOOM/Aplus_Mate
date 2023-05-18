@@ -3,3 +3,7 @@ tiktoken
 PyMuPDF
 fpdf
 openai
+python-multipart
+uvicorn
+gunicorn
+fastapi
