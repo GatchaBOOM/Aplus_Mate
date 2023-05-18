@@ -1,39 +1,68 @@
+from fastapi import FastAPI, Form, File, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from convert import Convert
 from create import CreateExam
 import os
 from dotenv import load_dotenv
 
+app = FastAPI()
+
 load_dotenv()
 OPEN_AI_KEY = os.environ.get("PRIVATE_KEY")
 
-key = OPEN_AI_KEY
-file = '서고강원본.pdf'
-cnt = 3
+origins = [
+    "https://646333d660ac1a58f0c6c0bf--vermillion-kulfi-3676b3.netlify.app"
+]
 
-ce = CreateExam(key)
-con = Convert(file, cnt)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-qst_list = []
-ans_list = []
+@app.post("/upload")
+async def upload(pdf: UploadFile = File(...)):
+    key = OPEN_AI_KEY
+    contents = await pdf.read()
+    filename = pdf.filename
+    cnt = 3
+    try:
+        # 파일의 저장 경로와 이름 결정
+        file_path = os.path.join(filename)
 
-for i in range(cnt):
-      
-      # GPT한테 질문할 내용 만들기
-      txt = con.getGPTInput()
-      input_cmd = f'''Please make only one short answer question from the contents of "{txt}",
-      For example, "Which country's capital is Seoul?[Korea]". And answer me in Korean.
-      '''
-      
-      # GPT한테 질문 쏘기
-      ans = ce.sendMessage(input_cmd)
-      # 답변 정제
-      filtered_qst, filtered_ans = ce.filter(ans)
-      qst_list.append(f'{i+1}번. ' + filtered_qst)
-      ans_list.append(f'{i+1}번. ' + filtered_ans)
-      
-print(f'''
-      생성된 문제: {qst_list},
-      생성된 답안: {ans_list}
-      ''')
+        # 파일을 기록합니다.
+        with open(file_path, "wb") as f:
+            f.write(contents)
+    except Exception as e:
+        print("error")
+    ce = CreateExam(key)
+    con = Convert(filename, cnt)
+    
+    qst_list = []
+    ans_list = []
 
-con.txt2pdf(qst_list, ans_list)
+    for i in range(cnt):
+        # GPT한테 질문할 내용 만들기
+        txt = con.getGPTInput()
+        input_cmd = f'''
+            내가 말하는 거에 대해서 시험문제를 만들어줘."대한민국의 수도는 어디인가요? [서울]"처럼 답변은 대괄호안에 넣어서 알려줘.
+            "{txt}"의 내용에서 짧은 단답식 문제 1개 만들어줘, ''’
+            '''
+        
+        # GPT한테 질문 쏘기
+        ans = ce.sendMessage(input_cmd)
+        # 답변 정제
+        filtered_qst, filtered_ans = ce.filter(ans)
+        qst_list.append(f'{i+1}번. ' + filtered_qst)
+        ans_list.append(f'{i+1}번. ' + filtered_ans)
+        
+    print(f'''
+        생성된 문제: {qst_list},
+        생성된 답안: {ans_list}
+        ''')
+
+    con.txt2pdf(qst_list, ans_list)
+    return FileResponse("output.pdf", filename="output.pdf")
