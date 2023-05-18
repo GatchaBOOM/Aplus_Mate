@@ -1,5 +1,5 @@
 # 기반 이미지 설정
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
+FROM python:3.10
 
 # 작업 디렉토리 생성
 WORKDIR /app
