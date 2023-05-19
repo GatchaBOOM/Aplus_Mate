@@ -65,7 +65,7 @@ async def upload(pdf: UploadFile = File(...)):
             continue
 
       qst_list.append(f'{i+1}번. ' + filtered_qst)
-      ans_list.append(f'{i+1}번. ' + filtered_ans + f' / {con.page}페이지')
+      ans_list.append(f'{i+1}번. ' + filtered_ans + f' / {con.page} ~ {con.page+1}페이지')
 
       i += 1
   

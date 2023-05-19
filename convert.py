@@ -22,7 +22,7 @@ class Convert:
         self.page_list = []
         
     def getGPTInput(self):
-        
+        print("getGPTInput")
         page = self.pickPages()
         text = self.pdf2txt(page)
         
@@ -48,16 +48,19 @@ class Convert:
     def pickPages(self,):
         # PDF 페이지 수
         self.num = self.doc.page_count
-    
+        print("pickPages")
         '''
         처음 몇 장은 제목, 개요 이런 내용이라 생각해서 제외
         나머지 페이지 중에서 cnt 개수만큼 랜덤으로 페이지 번호 추출
         '''
         
-        while True:
+        if self.num < 5:
             self.page = random.randint(1, self.num)
-            if self.page not in self.page_list:
-                break
+        else:
+            while True:
+                self.page = random.randint(1, self.num)
+                if self.page not in self.page_list:
+                    break
             
         self.page_list.append(self.page)
         print(f"{self.page} 페이지에서 추출")
@@ -65,7 +68,7 @@ class Convert:
         return self.page
         
     def pdf2txt(self, page_num):
-        
+        print("pdf2txt")
         '''
         page: pickPage()에서 랜덤으로 뽑은 난수 페이지 번호
         ppnum: pnum과 다음페이지까지 두장의 내용을 추출해서 한 문제 생성
