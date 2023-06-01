@@ -11,13 +11,9 @@ app = FastAPI()
 load_dotenv()
 OPEN_AI_KEY = os.environ.get("PRIVATE_KEY")
 
-origins = [
-    "https://646333d660ac1a58f0c6c0bf--vermillion-kulfi-3676b3.netlify.app"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -65,7 +61,7 @@ async def upload(pdf: UploadFile = File(...)):
             continue
 
       qst_list.append(f'{i+1}번. ' + filtered_qst)
-      ans_list.append(f'{i+1}번. ' + filtered_ans + f' / {con.page}페이지')
+      ans_list.append(f'{i+1}번. ' + filtered_ans + f' / {con.page} ~ {con.page+1}페이지')
 
       i += 1
   
@@ -77,3 +73,4 @@ async def upload(pdf: UploadFile = File(...)):
 
     con.txt2pdf(qst_list, ans_list)
     return FileResponse("output.pdf", filename="output.pdf")
+    
