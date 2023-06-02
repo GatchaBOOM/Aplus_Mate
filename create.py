@@ -61,3 +61,26 @@ class CreateExam:
             
             
         return question, answer 
+
+    
+
+    # 버전 2 필터임
+    def filter2(self, gpt_ans):
+        print("filter2 시작")
+        print(f'gpt answered: {gpt_ans}')
+        
+        # 문제와 답을 저장할 리스트 초기화
+        questionList = []
+        answerList = []
+        gpt_split = gpt_ans.split("\n\n")
+
+        for gs in gpt_split:
+            question, answer = gs.split("\n")
+            questionList.append(question[6:])
+            answerList.append(answer[3:])
+
+        # 결과 출력
+        print(questionList)
+        print(answerList)
+            
+        return questionList, answerList 

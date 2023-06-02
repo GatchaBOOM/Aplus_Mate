@@ -2,4 +2,4 @@ mate
 *.pkl
 *.pyc
 .env
-.pdf
+*.pdf

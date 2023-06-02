@@ -5,6 +5,8 @@ from convert import Convert
 from create import CreateExam
 import os
 from dotenv import load_dotenv
+import warnings
+warnings.filterwarnings("ignore")
 
 app = FastAPI()
 
@@ -40,32 +42,66 @@ async def upload(pdf: UploadFile = File(...)):
     qst_list = []
     ans_list = []
 
-    i = 0
+    ############ 버전 1 ############
+    # i = 0
 
-    while i < cnt:
+    # while i < cnt:
             
-      # GPT한테 질문할 내용 만들기
-      txt = con.getGPTInput()
-      input_cmd = f'''
-      내가 말하는 거에 대해서 시험문제를 만들어줘."대한민국의 수도는 어디인가요? [서울]"처럼 답변은 대괄호안에 넣어서 알려줘.
-      "{txt}"의 내용에서 짧은 단답식 문제 1개 만들어줘.
-      '''
+    #   # GPT한테 질문할 내용 만들기
+    #   txt = con.getGPTInput()
+    #   input_cmd = f'''
+    #   내가 말하는 거에 대해서 시험문제를 만들어줘."대한민국의 수도는 어디인가요? [서울]"처럼 답변은 대괄호안에 넣어서 알려줘.
+    #   "{txt}"의 내용에서 짧은 단답식 문제 1개 만들어줘.
+    #   '''
 
-      # GPT한테 질문 쏘기
-      ans = ce.sendMessage(input_cmd)
-      # 답변 정제
-      filtered_qst, filtered_ans = ce.filter(ans)
+    #   # GPT한테 질문 쏘기
+    #   ans = ce.sendMessage(input_cmd)
+    #   # 답변 정제
+    #   filtered_qst, filtered_ans = ce.filter(ans)
 
-      if filtered_qst is False:
-            print("답변 형식 오류로 인한 재생성")
-            continue
+    #   if filtered_qst is False:
+    #         print("답변 형식 오류로 인한 재생성")
+    #         continue
 
-      qst_list.append(f'{i+1}번. ' + filtered_qst)
-      ans_list.append(f'{i+1}번. ' + filtered_ans + f' / {con.page} ~ {con.page+1}페이지')
+    #   qst_list.append(f'{i+1}번. ' + filtered_qst)
+    #   ans_list.append(f'{i+1}번. ' + filtered_ans + f' / {con.page} ~ {con.page+1}페이지')
 
-      i += 1
-  
-        
+    #   i += 1
+            
+
+    ############ 버전 2 ############
+    # GPT한테 질문할 내용 만들기
+    txt = con.getGPTInput()
+    input_cmd = f'''
+    "Sentence"를 가지고 단답형 문제 5개와 그에 따른 각각의 답을 만들어줘. 또한 아래의 지시사항을 따라야해.
+
+    - 모든 문제는 주어진 "Sentence" 와 관련되어야 한다.
+    - 답변 형식은 항상 문제와 답을 ":" 로 구분해야한다. 즉, "문제 : 답 : " 형식이어야 한다. 아래의 두 예시를 참고하면 된다.
+    <예시 1>
+    문제 1 : 대한민국의 수도는?
+    답 : 서울
+    <예시 2>
+    문제 2 : 1+1은?
+    답 : 2
+    
+    문제를 생성할 "Sentence"는 아래와 같다.
+    
+    Sentence : "{txt}"
+    '''
+
+    # GPT한테 질문 쏘기
+    ans = ce.sendMessage(input_cmd)
+    # 답변 정제
+    filtered_qst_list, filtered_ans_list = ce.filter2(ans)
+    for i in range(len(filtered_qst_list)):
+        qst_list.append(f'{i+1}번. ' + filtered_qst_list[i])
+    for i in range(len(filtered_ans_list)):
+        ans_list.append(f'{i+1}번. ' + filtered_ans_list[i])
+
+
+
+
+    ## 반환  
     print(f'''
         생성된 문제: {qst_list},
         생성된 답안: {ans_list}
