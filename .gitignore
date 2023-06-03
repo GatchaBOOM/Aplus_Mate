@@ -3,3 +3,4 @@ mate
 *.pyc
 .env
 *.pdf
+test.py

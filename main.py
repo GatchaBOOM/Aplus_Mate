@@ -6,6 +6,7 @@ from create import CreateExam
 import os
 from dotenv import load_dotenv
 import warnings
+import time
 warnings.filterwarnings("ignore")
 
 app = FastAPI()
@@ -89,8 +90,12 @@ async def upload(pdf: UploadFile = File(...)):
     Sentence : "{txt}"
     '''
 
-    # GPT한테 질문 쏘기
+    st = time.time()
     ans = ce.sendMessage(input_cmd)
+    et = time.time()
+    tt = et - st
+    print(f'걸린 시간 : {tt}')
+    
     # 답변 정제
     filtered_qst_list, filtered_ans_list = ce.filter2(ans)
     for i in range(len(filtered_qst_list)):
@@ -99,13 +104,10 @@ async def upload(pdf: UploadFile = File(...)):
         ans_list.append(f'{i+1}번. ' + filtered_ans_list[i])
 
 
-
-
     ## 반환  
-    print(f'''
-        생성된 문제: {qst_list},
-        생성된 답안: {ans_list}
-        ''')
+    for q, a in zip(qst_list, ans_list):
+        print(f'생성 문제 {q}')
+        print(f'생성 답안 {a}')
 
     con.txt2pdf(qst_list, ans_list)
     return FileResponse("output.pdf", filename="output.pdf")
