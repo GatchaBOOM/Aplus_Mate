@@ -71,12 +71,28 @@ async def upload(pdf: UploadFile = File(...)):
             
 
     ############ 버전 2 ############
-    # GPT한테 질문할 내용 만들기
-    txt = con.getGPTInput()
-    input_cmd = f'''
-    "Sentence"를 가지고 단답형 문제 5개와 그에 따른 각각의 답을 만들어줘. 또한 아래의 지시사항을 따라야해.
+    txt_list = ''
+    for i in range(cnt):
+        txt = con.getGPTInput()
+        txt_list += txt
+        
+    input_cmd = f'''"Sentence"를 가지고 단답형 문제 5개와 그에 따른 각각의 답을 만들어줘. 또한 아래의 지시사항을 따라야해.
 
-    - 모든 문제는 주어진 "Sentence" 와 관련되어야 한다.
+    1. 모든 문제는 주어진 "Sentence" 와 관련되어야 한다.
+    2. 답변 형식은 항상 문제와 답을 ":" 로 구분해야한다. 즉, "문제 : 답 : " 형식이어야 한다. 아래의 두 예시를 참고하면 된다.
+    <예시 1>
+    문제 1 : 대한민국의 수도는?
+    답 : 서울
+    <예시 2>
+    문제 2 : 1+1은?
+    답 : 2
+    3. 문제를 생성할 "Sentence"는 아래와 같다.
+    Sentence : "{txt_list}"
+    4. 한글로 작성해야한다.
+
+    '''
+    input_bantanggo = f'''내가 아래에 <내용>이라고 적은 뒷부분의 내용으로 단답형 문제 5개와 그에 따른 각각의 답을 만들어줘. 또한 아래의 지시사항을 따라야해.
+
     - 답변 형식은 항상 문제와 답을 ":" 로 구분해야한다. 즉, "문제 : 답 : " 형식이어야 한다. 아래의 두 예시를 참고하면 된다.
     <예시 1>
     문제 1 : 대한민국의 수도는?
@@ -84,27 +100,40 @@ async def upload(pdf: UploadFile = File(...)):
     <예시 2>
     문제 2 : 1+1은?
     답 : 2
-    
-    문제를 생성할 "Sentence"는 아래와 같다.
-    
-    Sentence : "{txt}"
+    - 한글로 작성해야한다.
+
+    <내용>
+    "{txt_list}"
     '''
 
+    # GPT한테 질문 쏘기
+    import time
     st = time.time()
     ans = ce.sendMessage(input_cmd)
+
+    # 답변에 Sentence 있으면 반창고 질문으로 재질문
+    if ans.find('Sentence') != -1:
+        ans = ce.sendMessage(input_bantanggo)
+        
     et = time.time()
     tt = et - st
     print(f'걸린 시간 : {tt}')
-    
+
+        
     # 답변 정제
     filtered_qst_list, filtered_ans_list = ce.filter2(ans)
+
+    # 필터링 오류 시 한번만 다시 질문 더 해보기
+    if filtered_qst_list is False:
+        ans = ce.sendMessage(input_bantanggo)
+        filtered_qst_list, filtered_ans_list = ce.filter2(ans)
+        
     for i in range(len(filtered_qst_list)):
         qst_list.append(f'{i+1}번. ' + filtered_qst_list[i])
     for i in range(len(filtered_ans_list)):
         ans_list.append(f'{i+1}번. ' + filtered_ans_list[i])
 
 
-    ## 반환  
     for q, a in zip(qst_list, ans_list):
         print(f'생성 문제 {q}')
         print(f'생성 답안 {a}')

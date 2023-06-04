@@ -95,15 +95,18 @@ class Convert:
         pdf.add_font('Light', '', './fonts/GmarketSansTTFLight.ttf', uni=True)
         pdf.add_font('Medium', '', './fonts/GmarketSansTTFMedium.ttf', uni=True)
         pdf.add_font('Bold', '', './fonts/GmarketSansTTFBold.ttf', uni=True)
-        
+        pdf.add_font('Basic', '', './fonts/Arial_Unicode.ttf', uni=True)
         # 제목
         pdf.set_font('Bold', '', 25)
         name = self.pdf_file.split('.')[-2]
         pdf.cell(200, 10, txt = f'Question',ln = 1, align = 'C')
+        pdf.write(15, '\n')
+        pdf.set_font('Medium', '', 10)
+        pdf.cell(200, 0, txt = '에이플메이트',ln = 1, align = 'C')
         pdf.write(15, '\n\n')
         
         # 문제
-        pdf.set_font('Medium', '', 14)
+        pdf.set_font('Basic', '', 14)
         for q in qst:
             pdf.write(8, q+'\n\n')
         
@@ -113,9 +116,12 @@ class Convert:
         pdf.set_font('Bold', '', 25)
         name = self.pdf_file.split('.')[-2]
         pdf.cell(200, 10, txt = f'Answer',ln = 1, align = 'C')
+        pdf.write(15, '\n')
+        pdf.set_font('Medium', '', 10)
+        pdf.cell(200, 0, txt = '에이플메이트',ln = 1, align = 'C')
         pdf.write(15, '\n\n')
         
-        pdf.set_font('Medium', '', 14)
+        pdf.set_font('Basic', '', 14)
         for a in ans:
             pdf.write(8, a+'\n\n')
         

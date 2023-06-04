@@ -135,7 +135,10 @@ class CreateExam:
                     
                     questionList.append(question[3:])
                     answerList.append(answer)
-                    
+            else:
+                print("Filtering 오류")
+                return False, False
+            
         # 타입 2
         elif gpt_ans[0] == '문':
             
@@ -151,7 +154,9 @@ class CreateExam:
                     question = gs.split(':')[1].lstrip()
                     questionList.append(question)
                 
-                
+        else:
+            print("Filtering 오류")
+            return False, False
             
         # 결과 출력
         print(questionList)
