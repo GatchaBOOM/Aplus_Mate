@@ -12,7 +12,9 @@ warnings.filterwarnings("ignore")
 app = FastAPI()
 
 load_dotenv()
-OPEN_AI_KEY = os.environ.get("PRIVATE_KEY")
+OPEN_AI_KEY1 = os.environ.get("GPT_KEY1")
+OPEN_AI_KEY2 = os.environ.get("GPT_KEY2")
+OPEN_AI_KEY3 = os.environ.get("GPT_KEY3")
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,7 +26,8 @@ app.add_middleware(
 
 @app.post("/upload")
 async def upload(pdf: UploadFile = File(...)):
-    key = OPEN_AI_KEY
+    key = [OPEN_AI_KEY1, OPEN_AI_KEY2, OPEN_AI_KEY3]
+    
     contents = await pdf.read()
     filename = pdf.filename
     cnt = 5
