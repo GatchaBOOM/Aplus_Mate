@@ -5,13 +5,52 @@ import re
 
 class CreateExam:
     
-    def __init__(self, key):
+    def __init__(self, key_list):
         
-        openai.api_key = key
-    
+        # KEY 값 리스트
+        self.key_list = key_list
+        
     def sendMessage(self, question):
         
+        try:
+            # 질문하기
+            openai.api_key = self.key_list[0]
+            res = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo", 
+                messages=[
+                    {"role": "system", "content": "대학교 교안을 주면 너는 시험 대비 문제를 만들어야 된다. 말이 안되거나 너가 보기에 이상한 문제는 만들면 안된다."},
+                    {"role": "user", "content": question},
+                    ])
+        except:
+            self.sendMessage2(question)
+        # 답변 가져오기
+        ans = res.choices[0].message.content
+        
+        return ans
+    
+    def sendMessage2(self, question):
+        
+        try:
+            # 질문하기  image.png
+            openai.api_key = self.key_list[1]
+            res = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo", 
+                messages=[
+                    {"role": "system", "content": "대학교 교안을 주면 너는 시험 대비 문제를 만들어야 된다. 말이 안되거나 너가 보기에 이상한 문제는 만들면 안된다."},
+                    {"role": "user", "content": question},
+                    ])
+        except:
+            self.sendMessage3(question)
+        
+        # 답변 가져오기
+        ans = res.choices[0].message.content
+        
+        return ans
+    
+    def sendMessage3(self, question):
+    
         # 질문하기
+        openai.api_key = self.key_list[2]
         res = openai.ChatCompletion.create(
             model="gpt-3.5-turbo", 
             messages=[
